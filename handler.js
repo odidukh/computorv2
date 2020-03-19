@@ -8,9 +8,10 @@ function handler(expression) {
 	let left = expression[0];
 	let right = expression[1];
 	if (right.includes('?')) {
-		if (right === '?')
-			printOutput(computeLeftExpression(left));
-		else
+		if (right === '?') {
+			if (computeLeftExpression(left))
+				printOutput(computeLeftExpression(left));
+		} else
 			solveQuadricEquation(left, right);
 	} else {
 		saveVariablesToDB(left, right);

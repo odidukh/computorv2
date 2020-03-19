@@ -4,6 +4,8 @@ const operationChars = ['+', '-', '*', '/', '%', '^'];
 const separationChars = [',', '.', ';'];
 const separationCharsWithoutSemicolon = ['.', ','];
 const bracketsChars = ['(', ')', '[', ']'];
+const closingBracketsChars = [')', ']'];
+const openingBracketsChars = ['(', '['];
 
 function equalSignCheck(input) {
 	let equalSignStr = input.replace(/[^=]/g, '');
@@ -73,8 +75,13 @@ function charPositionCheck(input) {
 				return true;
 			}
 		}
-		if (operationAndDelimiterChars.includes(char)
+		if (openingBracketsChars.includes(char)
 			&& operationAndDelimiterChars.includes(nextChar)) {
+			printOutput("Syntax Error: '" + char + "' cannot be followed by '" + nextChar + "'");
+			return true;
+		}
+		if (operationAndDelimiterChars.includes(char)
+			&& (operationAndDelimiterChars.includes(nextChar) || closingBracketsChars.includes(nextChar))) {
 			printOutput("Syntax Error: '" + char + "' cannot be followed by '" + nextChar + "'");
 			return true;
 		}
@@ -82,6 +89,12 @@ function charPositionCheck(input) {
 			&& bracketsChars.includes(nextChar))
 			|| (bracketsChars.includes(char) &&
 			separationCharsWithoutSemicolon.includes(nextChar))) {
+			printOutput("Syntax Error: '" + char + "' cannot be followed by '" + nextChar + "'");
+			return true;
+		}
+
+
+		if ((char === ')' || char === ']') && (nextChar === '(' || nextChar === '[')) {
 			printOutput("Syntax Error: '" + char + "' cannot be followed by '" + nextChar + "'");
 			return true;
 		}
