@@ -1,7 +1,7 @@
 module.exports = saveToDB;
 const calculations = require('./calculation');
 const matrix = require('./matrix');
-const complex = require("./complex");
+const complexSaver = require("./complex_saver");
 const functionParser = require("./function");
 
 function checkVarName(varName) {
@@ -32,20 +32,6 @@ function checkVarName(varName) {
 			printOutput("Error: no variable name in function declaration");
 			return false;
 		}
-		let functionVar = matches[1];
-		if (Object.keys(savedVariables).includes(functionVar)) {
-			printOutput("Error: function variable is already booked");
-			return false;
-		}
-	}
-	let functionVariables = [];
-	Object.keys(savedVariables).forEach(varName => {
-		if (savedVariables[varName].type === 'function')
-			functionVariables.push(savedVariables[varName].variableName)
-	});
-	if (functionVariables.includes(varName)) {
-		printOutput("Error: '" + varName + "' is already function parameter")
-		return false;
 	}
 	return true;
 }
@@ -58,9 +44,9 @@ function saveToDB(left, right) {
 		} else if (right.includes('[')) {
 			matrix.matrix(left, right);
 		} else if (right.includes('i')) {
-			complex.complex(left, right);
+			complexSaver(left, right);
 		} else {
-			if (calculations(right) !== null) {
+			if (calculations(right, left) !== null) {
 				savedVariables[left] = {};
 				savedVariables[left].type = 'real';
 				savedVariables[left].value = calculations(right);

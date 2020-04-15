@@ -76,7 +76,7 @@ function charPositionCheck(input) {
 			}
 		}
 		if (openingBracketsChars.includes(char)
-			&& operationAndDelimiterChars.includes(nextChar)) {
+			&& operationAndDelimiterChars.includes(nextChar) && nextChar !== '-') {
 			printOutput("Syntax Error: '" + char + "' cannot be followed by '" + nextChar + "'");
 			return true;
 		}

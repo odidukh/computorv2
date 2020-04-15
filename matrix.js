@@ -39,9 +39,8 @@ function checkSyntax(expression) {
 		printOutput("Error: unsupported syntax. Check your input.");
 		return true
 	}
-	if (semicolonsCheck(expression))
-		return true;
-	return false;
+	return semicolonsCheck(expression);
+
 }
 
 function matricesOperations(expression) {
@@ -53,8 +52,8 @@ function matricesOperations(expression) {
 	}
 	for (let part of splited) {
 		if (part.includes('*')) {
-			if (multiplication(expression))
-				addingArray.push(multiplication(expression));
+			if (multiplication(part))
+				addingArray.push(multiplication(part));
 			else
 				return null;
 		} else
@@ -70,10 +69,9 @@ function matricesOperations(expression) {
 		for (let i = 0; i < addingArray.length - 1; i++) {
 			let firstMatr = addingArray[i];
 			let secondMatr = addingArray[i + 1];
-			addingArray[i + 1] = addMatrices(eval(firstMatr), eval(secondMatr));
+			addingArray[i + 1] = addMatrices(eval(firstMatr.split(';').join(',')), eval(secondMatr.split(';').join(',')));
 		}
 	}
-	console.log(addingArray[addingArray.length - 1]);
 	return addingArray[addingArray.length - 1];
 }
 
@@ -118,7 +116,7 @@ function format2D(a) {
 }
 
 function multiplication(expression) {
-	expression = expression.split('*');
+	expression = convert(expression).split('*');
 	for (const elem of expression) {
 		if (elem.includes('[') && (checkSyntax(elem) || checkIfMatrix(elem)))
 			return null;
@@ -199,14 +197,14 @@ function matrix(left, right) {
 	function checkMatrixSyntax(expression) {
 		let bracketsSignStr = expression.replace(/[^\[]/g, '');
 		if (bracketsSignStr.length < 2) {
-			printOutput("Syntax error: wrong matrix syntax - wrong '[]' count. Check input")
+			printOutput("Syntax error: wrong matrix syntax - wrong '[]' count. Check input");
 			return false;
 
 		}
 		return true;
 	}
 
-	if (checkMatrixSyntax(right)) {
+	if (checkMatrixSyntax(right) && (right = matricesOperations(right))) {
 		savedVariables[left] = {};
 		savedVariables[left].type = 'matrix';
 		savedVariables[left].value = right;
@@ -219,7 +217,7 @@ function matrix(left, right) {
 			savedVariables[left].value = parseFloat(matrix[0].substring(2, matrix[0].length - 2));
 			printOutput(savedVariables[left].value);
 		} else {
-			let matrix = savedVariables[left].value;
+			let matrix = savedVariables[left].value.substr(1, savedVariables[left].value.length - 2);
 			matrix = matrix.split(';');
 			matrix.forEach(row => {
 				printOutput('[ ' + row.substring(1, row.length - 1).split(',').join(' , ') + ' ]');
