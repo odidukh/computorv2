@@ -2,17 +2,86 @@ module.exports = calculation;
 const validator = require('./complex_validation');
 const realNumCalc = require('./real');
 
-function imaginaryPartComp(expression) {
-	return parseFloat(expression);
+
+function iToPower(expression) {
+	let coefficient = 1;
+	let result = 1;
+	if (expression[0] !== 'i') {
+		coefficient = parseFloat(expression);
+		expression = expression.substr(expression.indexOf('i'));
+	}
+	while (expression.includes('^')) {
+		expression = expression.split('^');
+		switch (expression[1] % 4) {
+			case 1:
+				expression[1] = 'i';
+				break;
+			case 2:
+				result = '-1';
+				return result * coefficient;
+			case 3:
+				expression[1] = 'i';
+				coefficient *= -1;
+				break;
+			case 0:
+				result = '1';
+				return result * coefficient;
+		}
+		expression = expression.shift().join('^')
+	}
+	return coefficient.toString() + expression;
+}
+
+function imaginaryNumCalc(expression) {
+	if (expression === 'i')
+		return '1i';
+	if (expression === '-i')
+		return '-1i';
+
+	expression = expression.split('*');
+	if (expression.length === 1)
+		return expression[0];
+	let multiplyRes = 1;
+	for (let i = 0; i < expression.length; i++) {
+		expression[i] = expression[i].split('/');
+		for (let j = 0; j < expression[i].length; j++) {
+			if (expression[i][j].includes('^')) {
+				if (expression[i][j].includes('i'))
+					expression[i][j] = iToPower(expression[i][j])
+				else
+					expression[i][j] = realNumCalc(expression[i][j]);
+			}
+		}
+		if (!expression[i].includes('/') && !expression[i].includes('^')) {
+			if (multiplyRes.toString().includes('i')) {
+				if (expression[i].includes('i')) {
+					if (expression[i] === 'i')
+						expression[i] = 1
+					if (expression[i] === '-i')
+						expression[i] = -1;
+					multiplyRes = parseFloat(multiplyRes.toString()) * parseFloat(expression[i]) * (-1);
+				}
+			} else {
+				if (expression[i].includes('i')) {
+					if (expression[i] === 'i')
+						expression[i] = 1
+					if (expression[i] === '-i')
+						expression[i] = -1;
+					multiplyRes = multiplyRes * parseFloat(expression[i]) + 'i';
+				} else {
+					multiplyRes = multiplyRes * expression[i];
+				}
+			}
+
+		}
+	}
+	return multiplyRes;
 }
 
 function combineRealAndImaginary(realPart, imaginaryPart) {
-	console.log(realPart, imaginaryPart)
 	let computedExp =  "";
 	if (realPart !== 0)
 		computedExp = computedExp + realPart;
-
-	console.log(computedExp.length)
 
 	if (imaginaryPart !== 0) {
 		if (computedExp.length && imaginaryPart > 0)
@@ -26,7 +95,7 @@ function combineRealAndImaginary(realPart, imaginaryPart) {
 }
 
 function calculation(expression) {
-	if (validator())
+	if (validator(expression))
 		return ;
 	let computedExp = expression;
 
@@ -39,9 +108,13 @@ function calculation(expression) {
 
 	for (let i = 0; i < computedExp.length; i++) {
 		let element = computedExp[i];
-		if (element.includes('i'))
-			imaginaryPart += imaginaryPartComp(element);
-		else
+		if (element.toString().includes('i')) {
+			let result = imaginaryNumCalc(element);
+			if (result.toString().includes('i'))
+				imaginaryPart += parseFloat(result);
+			else
+				realPart += result;
+		} else
 			realPart += realNumCalc(element);
 	}
 

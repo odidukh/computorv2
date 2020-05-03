@@ -4,7 +4,7 @@ const validator = require('./complex_validation')
 module.exports = save;
 
 function save(varName, expression) {
-    if (validator())
+    if (validator(expression))
         return ;
     let computedExp = calculation(expression);
 
