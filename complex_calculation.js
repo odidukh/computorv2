@@ -43,13 +43,22 @@ function imaginaryNumCalc(expression) {
 		return expression[0];
 	let multiplyRes = 1;
 	for (let i = 0; i < expression.length; i++) {
-		expression[i] = expression[i].split('/');
-		for (let j = 0; j < expression[i].length; j++) {
-			if (expression[i][j].includes('^')) {
-				if (expression[i][j].includes('i'))
-					expression[i][j] = iToPower(expression[i][j])
+		if (expression[i].includes('/')) {
+			expression[i] = expression[i].split('/');
+			for (let j = 0; j < expression[i].length; j++) {
+				if (expression[i][j].includes('^')) {
+					if (expression[i][j].includes('i'))
+						expression[i][j] = iToPower(expression[i][j])
+					else
+						expression[i][j] = realNumCalc(expression[i][j]);
+				}
+			}
+		} else {
+			if (expression[i].includes('^')) {
+				if (expression[i].includes('i'))
+					expression[i] = iToPower(expression[i][j])
 				else
-					expression[i][j] = realNumCalc(expression[i][j]);
+					expression[i] = realNumCalc(expression[i][j]);
 			}
 		}
 		if (!expression[i].includes('/') && !expression[i].includes('^')) {
@@ -79,7 +88,7 @@ function imaginaryNumCalc(expression) {
 }
 
 function combineRealAndImaginary(realPart, imaginaryPart) {
-	let computedExp =  "";
+	let computedExp = "";
 	if (realPart !== 0)
 		computedExp = computedExp + realPart;
 
@@ -96,7 +105,7 @@ function combineRealAndImaginary(realPart, imaginaryPart) {
 
 function calculation(expression) {
 	if (validator(expression))
-		return ;
+		return;
 	let computedExp = expression;
 
 	computedExp = computedExp.replace(/-/g, "+-");
