@@ -4,13 +4,17 @@ const realNumCalc = require('./real');
 
 
 function iToPower(expression) {
-	let coefficient = 1;
+	let coefficient = '';
 	let result = 1;
 	if (expression[0] !== 'i') {
 		coefficient = parseFloat(expression);
 		expression = expression.substr(expression.indexOf('i'));
 	}
 	while (expression.includes('^')) {
+		if (!expression.includes('i')) {
+			console.log(coefficient * realNumCalc(expression))
+			return coefficient * realNumCalc(expression);
+		}
 		expression = expression.split('^');
 		switch (expression[1] % 4) {
 			case 1:
@@ -18,18 +22,30 @@ function iToPower(expression) {
 				break;
 			case 2:
 				result = '-1';
-				return result * coefficient;
+				break;
 			case 3:
 				expression[1] = 'i';
+				if (!coefficient)
+					coefficient = 1;
 				coefficient *= -1;
 				break;
 			case 0:
 				result = '1';
-				return result * coefficient;
+				if (!coefficient)
+					coefficient = 1;
+				return coefficient;
 		}
-		expression = expression.shift().join('^')
+		expression.shift();
+		console.log('expression after shift', expression);
+		if (expression.length === 1)
+			break;
+		expression = expression.join('^');
+		console.log("expression after join", expression)
 	}
-	return coefficient.toString() + expression;
+	if (result.toString().includes('i'))
+		return coefficient.toString() + result;
+	else
+		return coefficient * result
 }
 
 function imaginaryNumCalc(expression) {
@@ -39,7 +55,8 @@ function imaginaryNumCalc(expression) {
 		return '-1i';
 
 	expression = expression.split('*');
-	if (expression.length === 1)
+	if (expression.length === 1 && !expression[0].includes('/')
+		&& !expression[0].includes('^'))
 		return expression[0];
 	let multiplyRes = 1;
 	for (let i = 0; i < expression.length; i++) {
@@ -48,7 +65,7 @@ function imaginaryNumCalc(expression) {
 			for (let j = 0; j < expression[i].length; j++) {
 				if (expression[i][j].includes('^')) {
 					if (expression[i][j].includes('i'))
-						expression[i][j] = iToPower(expression[i][j])
+						expression[i][j] = iToPower(expression[i][j]);
 					else
 						expression[i][j] = realNumCalc(expression[i][j]);
 				}
@@ -56,24 +73,25 @@ function imaginaryNumCalc(expression) {
 		} else {
 			if (expression[i].includes('^')) {
 				if (expression[i].includes('i'))
-					expression[i] = iToPower(expression[i][j])
+					expression[i] = iToPower(expression[i]);
 				else
-					expression[i] = realNumCalc(expression[i][j]);
+					expression[i] = realNumCalc(expression[i]);
 			}
 		}
-		if (!expression[i].includes('/') && !expression[i].includes('^')) {
+		if (!expression[i].toString().includes('/')
+			&& !expression[i].toString().includes('^')) {
 			if (multiplyRes.toString().includes('i')) {
 				if (expression[i].includes('i')) {
 					if (expression[i] === 'i')
-						expression[i] = 1
+						expression[i] = 1;
 					if (expression[i] === '-i')
 						expression[i] = -1;
 					multiplyRes = parseFloat(multiplyRes.toString()) * parseFloat(expression[i]) * (-1);
 				}
 			} else {
-				if (expression[i].includes('i')) {
+				if (expression[i].toString().includes('i')) {
 					if (expression[i] === 'i')
-						expression[i] = 1
+						expression[i] = 1;
 					if (expression[i] === '-i')
 						expression[i] = -1;
 					multiplyRes = multiplyRes * parseFloat(expression[i]) + 'i';
@@ -89,6 +107,8 @@ function imaginaryNumCalc(expression) {
 
 function combineRealAndImaginary(realPart, imaginaryPart) {
 	let computedExp = "";
+	if (realPart === 0 && imaginaryPart === 0)
+		return '0';
 	if (realPart !== 0)
 		computedExp = computedExp + realPart;
 
@@ -126,6 +146,5 @@ function calculation(expression) {
 		} else
 			realPart += realNumCalc(element);
 	}
-
 	return combineRealAndImaginary(realPart, imaginaryPart);
 }
